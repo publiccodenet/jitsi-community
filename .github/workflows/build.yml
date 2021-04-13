@@ -1,7 +1,7 @@
-name: learn-github-actions
+name: build-package
 on: [push]
 jobs:
-  check-bats-version:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -12,4 +12,9 @@ jobs:
           cd prosody/util-src
           sh configure
           make
-
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: prosody-native-utils
+          path: |
+            prosody/util-src/hashes.so
