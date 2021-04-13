@@ -5,8 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-      - run: cd prosody/util-src; \
-          ./configure; \
+      - run: |
+          cd prosody/util-src
+          sh configure
           make
 
