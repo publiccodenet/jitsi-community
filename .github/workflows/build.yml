@@ -6,7 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Install development files for Lua 5.2 
-        run: sudo apt install --no-install-recommends lua5.2
+        run: sudo apt install --no-install-recommends lua5.2 liblua5.2-dev
       - name: Build prosody native utils (hashes.c)
         run: |
           cd prosody/util-src
