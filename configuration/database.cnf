@@ -1,0 +1,6 @@
+[client]
+database = accountmanager
+user = accountmanager
+password = secret
+default-character-set = utf8mb4
+
