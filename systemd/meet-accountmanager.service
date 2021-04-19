@@ -1,0 +1,20 @@
+[Unit]
+Description=meet-accountmanager daemon
+Requires=meet-accountmanager.socket
+After=network.target
+
+[Service]
+Type=notify
+User=meet-accountmanager
+Group=meet-accountmanager
+WorkingDirectory=/opt/meet-accountmanager
+Environment=GUNICORN_CMD_ARGS="--access-logfile /var/log/meet-accountmanager/access.log --error-logfile /var/log/meet-accountmanager/gunicorn-error.log"
+Environment=APP_SETTINGS=/etc/meet-accountmanager/settings.cfg
+ExecStart=/opt/meet-accountmanager/venv/bin/gunicorn accountmanager.wsgi
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
