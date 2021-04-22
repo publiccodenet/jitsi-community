@@ -31,8 +31,8 @@ All code not falling under the above is dual licensed under
 [Apache-2.0](https://choosealicense.com/licenses/apache-2.0/) and
 [MIT](https://opensource.org/licenses/MIT).
 
-## Folder structure
-
+## Directory structure
+|Directory          |Explanation|
 |-------------------|---|
 |meet-accountmanager|a Django application for user sign up|
 |prosody            |contains files for Prosody|
