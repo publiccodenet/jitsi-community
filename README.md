@@ -33,11 +33,12 @@ All code not falling under the above is dual licensed under
 
 ## Folder structure
 
+|-------------------|---|
 |meet-accountmanager|a Django application for user sign up|
-|prosody|contains files for Prosody|
-|systemd|unit files for services and socket|
-|configuration|example configuration files|
-|util|utility scripts|
+|prosody            |contains files for Prosody|
+|systemd            |unit files for services and socket|
+|configuration      |example configuration files|
+|util               |utility scripts|
 
 ## Installation
 
@@ -49,12 +50,12 @@ Cooper](https://www.digitalocean.com/community/tutorials/how-to-install-jitsi-me
 [How To Install MariaDB on Ubuntu 20.04 By Brian Boucheron and Mark
 Drake](https://www.digitalocean.com/community/tutorials/how-to-install-mariadb-on-ubuntu-20-04)
 
-Create a MariaDB database and users for our services.  Open the MariaDB client:
+### 1. Create a MariaDB database and users for our services.
+Open the MariaDB client:
 ```sh
 mariadb
 ```
-In the following change _<replace with password>_ for the accountmanager and
-Prosody database users and run it to create the database:
+In the following change _<replace with password>_ for the accountmanager and Prosody database users and run it to create the database:
 ```mysql
 CREATE DATABASE accountmanager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;
 
@@ -66,12 +67,13 @@ GRANT SELECT ON accountmanager.* TO 'accountmanager'@'localhost';
 ```
 
 
-Creating a system user and group for the meet-accountmanager service to run
-as:
+### 2. Create a system user and group for the meet-accountmanager service.
+
 ```sh
 sudo adduser adduser --quiet --system --home "/var/lib/meet-accountmanager" --group meet-accountmanager
 ```
 
+### 3. Create directories
 Creating home, configuration and logging directories for the
 meet-accountmanager service to use. The logging and home directories should be
 writable by the service.
@@ -81,6 +83,7 @@ sudo mkdir -p /{etc/meet-accountmanager,/var/{lib,log}/meet-accountmanager}
 chown -R meet-accountmanager:meet-accountmanager /var/{lib,log}/meet-accountmanager
 ```
 
+### 4. Install the meet-accountmanager Django app
 Unpack the meet account manager into /opt/meet-accountmanager
 ```sh
 sudo tar -xJf meet-accountmanager.tar.xz -C /opt
@@ -118,6 +121,7 @@ Add a Django admin user
 ```sh
 python manage.py createsuperuser
 ```
+### Setup the systemd unit files for meet-accountmanager
 
 Add the socket and service
 ```sh
@@ -137,6 +141,8 @@ sudo -u www-data curl --unix-socket /run/gunicorn.sock http
 ```
 The Gunicorn service should be automatically
 started and you should see some HTML from your server in the terminal.
+
+### Update the Nginx configuration
 
 Nginx configuration add the following to your Nginx configuration for the Jitsi Meet site.
 The file is located in /etc/nginx/sites-available and is probably
@@ -177,10 +183,12 @@ Add the following block after the `location = /xmpp-websocket` block:
     }
 ```
 
+### Install the prosody modules
+Unzip the Prosody zip file.
+```sh
+unzip prosody-native-utils-amd64.zip
+```
 
-Unpack the 
-Prosody setup Adding the auth module Adding the hashes.so Udating the Prosody
-configuration.
 We are using a version of hashes.so taken from a more recent version Prosody
 because we need SHA-256 support.
 ```sh
@@ -189,7 +197,7 @@ cp hashes.so /usr/lib/prosody/util/
 cp mod_auth_sql_hashed.lua /usr/lib/prosody/modules/
 ```
 
-Edit the Prosody configuration for the Jitsi instance.
+### Edit the Prosody configuration for the Jitsi instance.
 This involves setting the Prosody instance to use the auth_sql_hashed and adding an auth_sql block to the credentials to the Prosody sql user you created earlier.
 In the configuration block for the Prosody host used by your Jitsi instance.
 ```lua
@@ -198,7 +206,7 @@ In the configuration block for the Prosody host used by your Jitsi instance.
 ```
 Restart the Prosody instance.
 
-
+### Test the installation
 Test that a user that is added in Django can log into Jitsi.
 
 ## References
