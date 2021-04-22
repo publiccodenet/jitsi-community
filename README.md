@@ -1,22 +1,31 @@
 # jitsi-community
 
-This a project to allow users to sign up to use jitsi. It repurposes Django's
-admin console to provide a web UI for managing uses. And uses the
-regisitration-redux module to allow self sign up. The requirements.txt
-includes a dependency for gunicorn to serve it along with systemd unit files
-for a socket and service.
+This a project to allow users to sign up to a Jitsi instance using a web UI.
 
 **IMPORTANT WARNING: There is currently no
-automated way to migrate your users from the prosody user database into the
-Django database** . we had a small number of users that we migrated manually
+automated way to migrate your users from the Prosody user database into the
+Django database** . We had a small number of users that we migrated manually
 by recreating the users in Django admin console.
+
+The web UI is a Django instance. It repurposes [Django's admin
+Console](https://docs.djangoproject.com/en/3.2/ref/contrib/admin/) to provide 
+a way to manage users. The 
+[regisitration-redux](https://django-registration-redux.readthedocs.io/en/latest/) 
+module provides a way for users to sign up, regisitration-redux is configured
+to require [admin approval](https://django-registration-redux.readthedocs.io/en/latest/admin-approval-backend.html)
+of new user accounts. To link Jitsi to the Django user database a Prosody 
+module is supplied. To get the version of Prosody that ships as part of 
+Ubuntu 20.04 to work with the SHA256 hashes that Django uses, the Prosody 
+utils module, hashes.so, has to be replaced with a newer version. The 
+requirements.txt includes a dependency for gunicorn to serve it along with 
+systemd unit files for a socket and service.
 
 ## Licenses
 
 The solution reuses code from various projects and as such those parts fall
 under following licences:
-Code reused from Django - [BSD-3-Clause](https://choosealicense.com/licenses/bsd-3-clause/)
-Code reused from Prosody and the Prosody community modules - [MIT](https://choosealicense.com/licenses/mit/)
+* Code reused from Django - [BSD-3-Clause](https://choosealicense.com/licenses/bsd-3-clause/)
+* Code reused from Prosody and the Prosody community modules - [MIT](https://choosealicense.com/licenses/mit/)
 
 All code not falling under the above is dual licensed under 
 [Apache-2.0](https://choosealicense.com/licenses/apache-2.0/) and
@@ -24,26 +33,28 @@ All code not falling under the above is dual licensed under
 
 ## Folder structure
 
-|meet-accountmanager|a Django application for user sign up| |prosody|contains
-files for prosody| |systemd|unit files for services and socket|
-|config|example configuration files|
+|meet-accountmanager|a Django application for user sign up|
+|prosody|contains files for Prosody|
+|systemd|unit files for services and socket|
+|configuration|example configuration files|
+|util|utility scripts|
 
 ## Installation
 
 These instructions are for installation on Ubuntu 20.04.  They
-assume that you already have a working jitsi meet installation and mariadb.
+assume that you already have a working Jitsi installation and mariadb.
 We followed these Digital Ocean community tutorials to set them up: [How To
 Install Jitsi Meet on Ubuntu 20.04 By Elliot
 Cooper](https://www.digitalocean.com/community/tutorials/how-to-install-jitsi-meet-on-ubuntu-20-04)
 [How To Install MariaDB on Ubuntu 20.04 By Brian Boucheron and Mark
 Drake](https://www.digitalocean.com/community/tutorials/how-to-install-mariadb-on-ubuntu-20-04)
 
-Create a MariaDB database and users for our services.  Open mariadb client:
+Create a MariaDB database and users for our services.  Open the MariaDB client:
 ```sh
 mariadb
 ```
 In the following change _<replace with password>_ for the accountmanager and
-prosody database users and run it to create the database:
+Prosody database users and run it to create the database:
 ```mysql
 CREATE DATABASE accountmanager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;
 
@@ -170,7 +181,7 @@ Add the following block after the `location = /xmpp-websocket` block:
 Unpack the 
 Prosody setup Adding the auth module Adding the hashes.so Udating the Prosody
 configuration.
-We are using a version of hashes.so taken from a more recent version prosody
+We are using a version of hashes.so taken from a more recent version Prosody
 because we need SHA-256 support.
 ```sh
 mv /usr/lib/prosody/util/hashes.so /usr/lib/prosody/util/hashes.so.bak
@@ -178,17 +189,17 @@ cp hashes.so /usr/lib/prosody/util/
 cp mod_auth_sql_hashed.lua /usr/lib/prosody/modules/
 ```
 
-Edit the prosody configuration for the jitsi meet instance.
-This involves setting the prosody instance to use the auth_sql_hashed and adding an auth_sql block to the credentials to the prosody sql user you created earlier.
+Edit the Prosody configuration for the Jitsi instance.
+This involves setting the Prosody instance to use the auth_sql_hashed and adding an auth_sql block to the credentials to the Prosody sql user you created earlier.
 In the configuration block for the Prosody host used by your Jitsi instance.
 ```lua
         authentication = "sql_hashed"
         auth_sql = { driver = "MySQL", database = "accountmanager", username = "prosody", password = "<prosody sql user password>", host = "localhost"
 ```
-Restart the prosody instance.
+Restart the Prosody instance.
 
 
-Test that a user that is added in Django can log into jitsi-meet.
+Test that a user that is added in Django can log into Jitsi.
 
 ## References
 The following sources were consulted to create the installation guide:
