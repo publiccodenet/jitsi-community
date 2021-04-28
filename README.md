@@ -125,14 +125,12 @@ python manage.py createsuperuser
 
 Add the socket and service
 ```sh
-sudo cp
-systemd/meet-accountmanager.{service,socket} /etc/systemd/system/
+sudo cp systemd/meet-accountmanager.{service,socket} /etc/systemd/system/
 ```
 
 Restart the socket and service
 ```sh
-sudo systemctl enable --now
-meet-accountmanager.socket
+sudo systemctl enable --now meet-accountmanager.socket
 ```
 
 Test the Django socket.
