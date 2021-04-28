@@ -70,7 +70,7 @@ GRANT SELECT ON accountmanager.* TO 'accountmanager'@'localhost';
 ### 2. Create a system user and group for the meet-accountmanager service.
 
 ```sh
-sudo adduser adduser --quiet --system --home "/var/lib/meet-accountmanager" --group meet-accountmanager
+sudo adduser --quiet --system --home "/var/lib/meet-accountmanager" --group meet-accountmanager
 ```
 
 ### 3. Create directories
