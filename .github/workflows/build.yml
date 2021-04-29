@@ -47,7 +47,8 @@ jobs:
         with:
           prerelease: true
           body: This is a prerelease.
-          with_files: |
+          tag_name: prerelease
+          files: |
             meet-accountmanager.tar.xz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
