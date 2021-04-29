@@ -34,18 +34,13 @@ jobs:
         run: |
           cd meet-accountmanager
           venv/bin/python3 manage.py collectstatic 
+      - name: Create archive
+        run: |
+          tar -xJf meet-accountmanager.tar.xz meet-accountmanager
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
           name: meet-accountmanager
-          path: |
-            meet-accountmanager/accountmanager
-            meet-accountmanager/accounts
-            meet-accountmanager/templates
-            meet-accountmanager/static
-            meet-accountmanager/static2
-            meet-accountmanager/venv
-            meet-accountmanager/manage.py
-            meet-accountmanager/LICENSE
+          path: meet-accountmanager.tar.xz
 
 
