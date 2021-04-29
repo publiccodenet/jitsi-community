@@ -36,7 +36,7 @@ jobs:
           venv/bin/python3 manage.py collectstatic 
       - name: Create archive
         run: |
-          tar -xJf meet-accountmanager.tar.xz meet-accountmanager
+          tar -cJf meet-accountmanager.tar.xz meet-accountmanager
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
