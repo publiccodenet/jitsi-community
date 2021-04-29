@@ -4,7 +4,7 @@ This a project to allow users to sign up to a Jitsi instance using a web UI.
 
 **IMPORTANT WARNING: There is currently no
 automated way to migrate your users from the Prosody user database into the
-Django database** . We had a small number of users that we migrated manually
+Django database**. We had a small number of users that we migrated manually
 by recreating the users in Django admin console.
 
 The web UI is a Django instance. It repurposes [Django's admin
@@ -55,7 +55,7 @@ Open the MariaDB client:
 ```sh
 mariadb
 ```
-In the following change _<replace with password>_ for the accountmanager and Prosody database users and run it to create the database:
+In the following section change _<replace with password>_ for the accountmanager and the Prosody database users. Run it to create the database:
 ```mysql
 CREATE DATABASE accountmanager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;
 
@@ -89,7 +89,7 @@ Unpack the meet account manager into /opt/meet-accountmanager
 sudo tar -xJf meet-accountmanager.tar.xz -C /opt
 ```
 
-Configure Django's database conection by copying
+Configure Django's database connection by copying
 ```sh
 cp /opt/meet-accountmanager/example-configuration/* /etc/meet-accountmananger/
 ```
@@ -108,7 +108,7 @@ edit `accountmanager/settings.py`. Update the line with the emails:
 REGISTRATION_ADMINS = [('<change to name>', '<change to email address>')]
 ```
 
-Activate the Python virtual environment and use Django's mange.py the
+Activate the Python virtual environment and use Django's manage.py the
 initialize the database.
 ```sh
 cd /opt/meet-accountmanager
@@ -133,7 +133,7 @@ Restart the socket and service
 sudo systemctl enable --now meet-accountmanager.socket
 ```
 
-Test the Django socket.
+Test the Django socket
 ```sh
 sudo -u www-data curl --unix-socket /run/gunicorn.sock http
 ```
