@@ -5,7 +5,7 @@ This project allows users to sign up to a Jitsi instance using a web UI.
 **IMPORTANT WARNING: There is currently no automated way to migrate your 
 users from the Prosody user database into the Django database.**
 We had a small number of users that we migrated manually
-by recreating the their user accounts in Django admin console.
+by recreating their user accounts in Django admin console.
 
 The web UI is a Django instance. It repurposes [Django's admin
 Console](https://docs.djangoproject.com/en/3.2/ref/contrib/admin/) to provide 
@@ -54,7 +54,7 @@ Open the MariaDB client:
 ```sh
 mariadb
 ```
-In the following change _<replace with password>_ for the accountmanager and Prosody database users and run it to create the database:
+In the following section change _<replace with password>_ for the accountmanager and the Prosody database users. Run it to create the database:
 ```mysql
 CREATE DATABASE accountmanager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;
 
@@ -88,7 +88,7 @@ Unpack the meet account manager archive into /opt/meet-accountmanager
 sudo tar -xJf meet-accountmanager.tar.xz -C /opt
 ```
 
-Configure Django's database conection by copying the example config 
+Configure Django's database connection by copying the example config 
 into the configuration directory. Then edit the values:
 ```sh
 cp /opt/meet-accountmanager/example-configuration/* /etc/meet-accountmananger/
@@ -143,7 +143,7 @@ Restart the socket and service:
 sudo systemctl enable --now meet-accountmanager.socket
 ```
 
-Test the Django socket.
+Test the Django socket
 ```sh
 sudo -u www-data curl --unix-socket /run/gunicorn.sock http
 ```
