@@ -1,7 +1,7 @@
 name: build-package
 on: [push]
 jobs:
-  build:
+  build-natives:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -18,3 +18,31 @@ jobs:
           name: prosody-native-utils-amd64
           path: |
             prosody/util-src/hashes.so
+  build-django-app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup python venv
+        run: |
+          cd meet-accountmanager
+          python3 -m venv venv
+          . venv/bin/activate
+          pip install -r requirements.txt
+      - name: Copy the files to static2
+        run: |
+          python3 manage.py collectstatic 
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: meet-accountmanager
+          path: |
+            meet-accountmanager/accountmanager
+            meet-accountmanager/accounts
+            meet-accountmanager/templates
+            meet-accountmanager/static
+            meet-accountmanager/static2
+            meet-accountmanager/venv
+            meet-accountmanager/manage.py
+            meet-accountmanager/LICENSE
+
+
