@@ -1,11 +1,11 @@
 # jitsi-community
 
-This a project to allow users to sign up to a Jitsi instance using a web UI.
+This project allows users to sign up to a Jitsi instance using a web UI.
 
-**IMPORTANT WARNING: There is currently no
-automated way to migrate your users from the Prosody user database into the
-Django database** . We had a small number of users that we migrated manually
-by recreating the users in Django admin console.
+**IMPORTANT WARNING: There is currently no automated way to migrate your 
+users from the Prosody user database into the Django database.**
+We had a small number of users that we migrated manually
+by recreating the their user accounts in Django admin console.
 
 The web UI is a Django instance. It repurposes [Django's admin
 Console](https://docs.djangoproject.com/en/3.2/ref/contrib/admin/) to provide 
@@ -17,8 +17,8 @@ of new user accounts. To link Jitsi to the Django user database a Prosody
 module is supplied. To get the version of Prosody that ships as part of 
 Ubuntu 20.04 to work with the SHA256 hashes that Django uses, the Prosody 
 utils module, hashes.so, has to be replaced with a newer version. The 
-requirements.txt includes a dependency for gunicorn to serve it along with 
-systemd unit files for a socket and service.
+requirements.txt includes a dependency for [Gunicorn](https://gunicorn.org/) to serve Django. Also provided are 
+systemd unit files for a socket and service to keep it running.
 
 ## Licenses
 
@@ -43,11 +43,10 @@ All code not falling under the above is dual licensed under
 ## Installation
 
 These instructions are for installation on Ubuntu 20.04.  They
-assume that you already have a working Jitsi installation and mariadb.
-We followed these Digital Ocean community tutorials to set them up: [How To
-Install Jitsi Meet on Ubuntu 20.04 By Elliot
-Cooper](https://www.digitalocean.com/community/tutorials/how-to-install-jitsi-meet-on-ubuntu-20-04)
-[How To Install MariaDB on Ubuntu 20.04 By Brian Boucheron and Mark
+assume that you already have a working Jitsi installation and mariadb is installed and ready to go.
+We followed these Digital Ocean community tutorials to set them up:
+* [How To Install Jitsi Meet on Ubuntu 20.04 By Elliot Cooper](https://www.digitalocean.com/community/tutorials/how-to-install-jitsi-meet-on-ubuntu-20-04)
+* [How To Install MariaDB on Ubuntu 20.04 By Brian Boucheron and Mark
 Drake](https://www.digitalocean.com/community/tutorials/how-to-install-mariadb-on-ubuntu-20-04)
 
 ### 1. Create a MariaDB database and users for our services.
@@ -74,7 +73,7 @@ sudo adduser --quiet --system --home "/var/lib/meet-accountmanager" --group meet
 ```
 
 ### 3. Create directories
-Creating home, configuration and logging directories for the
+Create home, configuration and logging directories for the
 meet-accountmanager service to use. The logging and home directories should be
 writable by the service.
 
@@ -84,32 +83,43 @@ chown -R meet-accountmanager:meet-accountmanager /var/{lib,log}/meet-accountmana
 ```
 
 ### 4. Install the meet-accountmanager Django app
-Unpack the meet account manager into /opt/meet-accountmanager
+Unpack the meet account manager archive into /opt/meet-accountmanager
 ```sh
 sudo tar -xJf meet-accountmanager.tar.xz -C /opt
 ```
 
-Configure Django's database conection by copying
+Configure Django's database conection by copying the example config 
+into the configuration directory. Then edit the values:
 ```sh
 cp /opt/meet-accountmanager/example-configuration/* /etc/meet-accountmananger/
+chown root:meet-accountmanager /etc/meet-accountmanager/database.cnf
+chmod 640 /etc/meet-accountmanager/database.cnf
 ```
 
 Configure Django's email server password by placing it in the file `/etc/meet-accountmanager/email_password`.
-
-Generate a secret key for session and cookie encryption
-```sh
-cd /etc/meet-accountmanager/
-python3 /opt/meet-accountmanager/create_key.py key
+```
+touch /etc/meet-accountmanager/email_password
+chown root:meet-accountmanager /etc/meet-accountmanager/email_password
+chmod 640 /etc/meet-accountmanager/email_password
+nano /etc/meet-accountmanager/email_password
 ```
 
-configure the email accounts that will receive notifications for approvals.
-edit `accountmanager/settings.py`. Update the line with the emails:
+Generate a secret key for session and cookie encryption:
+```sh
+cd /etc/meet-accountmanager/
+umask 037
+python3 /opt/meet-accountmanager/create_key.py key
+umask 022
+```
+
+Configure the email accounts that will receive notifications for approvals.
+Edit `accountmanager/settings.py`. Update the line with the emails:
 ```python
 REGISTRATION_ADMINS = [('<change to name>', '<change to email address>')]
 ```
 
-Activate the Python virtual environment and use Django's mange.py the
-initialize the database.
+Activate the Python virtual environment and use Django's manage.py to
+initialize the database:
 ```sh
 cd /opt/meet-accountmanager
 source venv/bin/activate
@@ -117,18 +127,18 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-Add a Django admin user
+Add a Django admin user:
 ```sh
 python manage.py createsuperuser
 ```
 ### Setup the systemd unit files for meet-accountmanager
 
-Add the socket and service
+Add the socket and service:
 ```sh
 sudo cp systemd/meet-accountmanager.{service,socket} /etc/systemd/system/
 ```
 
-Restart the socket and service
+Restart the socket and service:
 ```sh
 sudo systemctl enable --now meet-accountmanager.socket
 ```
@@ -142,8 +152,8 @@ started and you should see some HTML from your server in the terminal.
 
 ### Update the Nginx configuration
 
-Nginx configuration add the following to your Nginx configuration for the Jitsi Meet site.
-The file is located in /etc/nginx/sites-available and is probably
+Add the following to your Nginx configuration for the Jitsi Meet site.
+The file is located in `/etc/nginx/sites-available` and is probably
 named `_<your site address>_.conf`.
 
 Add the following before the first `server` block:
@@ -167,6 +177,7 @@ Add the following block after the `location = /external_api.js` block:
         }
     }
 ```
+
 Add the following block after the `location = /xmpp-websocket` block:
 ```
     location ^~ /accountmanager/ {
@@ -187,7 +198,7 @@ Unzip the Prosody zip file.
 unzip prosody-native-utils-amd64.zip
 ```
 
-We are using a version of hashes.so taken from a more recent version Prosody
+Replace hashes.so with a version of hashes.so taken from a more recent version of Prosody
 because we need SHA-256 support.
 ```sh
 mv /usr/lib/prosody/util/hashes.so /usr/lib/prosody/util/hashes.so.bak
@@ -196,7 +207,7 @@ cp mod_auth_sql_hashed.lua /usr/lib/prosody/modules/
 ```
 
 ### Edit the Prosody configuration for the Jitsi instance.
-This involves setting the Prosody instance to use the auth_sql_hashed and adding an auth_sql block to the credentials to the Prosody sql user you created earlier.
+Configure the Prosody instance to use the auth_sql_hashed module and add an auth_sql block containing the credentials for the Prosody MariaDB user you created earlier.
 In the configuration block for the Prosody host used by your Jitsi instance.
 ```lua
         authentication = "sql_hashed"
