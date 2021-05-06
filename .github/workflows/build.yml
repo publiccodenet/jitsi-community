@@ -18,6 +18,7 @@ jobs:
           name: prosody-native-utils-amd64
           path: |
             prosody/util-src/hashes.so
+            prosody/auth_module/mod_auth_sql_hashed.lua
   build-django-app:
     runs-on: ubuntu-latest
     steps:
@@ -36,6 +37,8 @@ jobs:
           venv/bin/python3 manage.py collectstatic 
       - name: Create archive
         run: |
+          cp -R systemd meet-accountmanager/sytemd
+          cp -R configuration meet-accountmanager/example-configuration
           tar -cJf meet-accountmanager.tar.xz meet-accountmanager
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
