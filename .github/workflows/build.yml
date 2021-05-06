@@ -50,7 +50,7 @@ jobs:
         with:
           prerelease: true
           body: This is a prerelease.
-          tag_name: prerelease ${{ env.GITHUB_SHA }}
+          tag_name: prerelease.${{ env.GITHUB_SHA }}
           files: |
             meet-accountmanager.tar.xz
         env:
