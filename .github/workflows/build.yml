@@ -1,7 +1,7 @@
 name: build-package
 on: [push]
 jobs:
-  build-natives:
+  build-prosody-amd64:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -50,6 +50,7 @@ jobs:
           path: meet-accountmanager.tar.xz
   create-release:
     runs-on: ubuntu-latest
+    needs: [build-prosody-amd64, build-django-app] 
     steps:
       - uses: actions/download-artifact@v2
       - name: Create a pre Release
@@ -58,8 +59,8 @@ jobs:
           prerelease: true
           body: This is a prerelease.
           files: |
-            meet-accountmanager.tar.xz
-            prosody-native-utils-amd64.tar.xz
+            meet-accountmanager/meet-accountmanager.tar.xz
+            prosody-native-utils-amd64/prosody-native-utils-amd64.tar.xz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
