@@ -63,8 +63,8 @@ jobs:
             const sha = context.sha.substring(0, 7);
             const branch = context.ref.split('/').pop();
             const tag_name = `prerelease-${branch}-${num}-${sha}`;
-            return tag_name;
-          result-encoding: string
+            console.log(tag_name);
+            core.setOutput('tag_name', tag_name);
       - name: Prerelease
         uses: softprops/action-gh-release@v1
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
