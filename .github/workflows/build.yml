@@ -59,10 +59,10 @@ jobs:
         id: prerelease_tag_name
         with:
           script: |
-            conts num = context.runNumber;
+            const num = context.runNumber;
             const sha = context.sha.substring(0, 7);
             const branch = context.ref.split('/').pop();
-            cont tag_name = `prerelease-${branch}-${num}-${sha}`;
+            const tag_name = `prerelease-${branch}-${num}-${sha}`;
             return tag_name;
           result-encoding: string
       - name: Prerelease
