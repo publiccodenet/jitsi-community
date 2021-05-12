@@ -53,13 +53,35 @@ jobs:
     needs: [build-prosody-amd64, build-django-app] 
     steps:
       - uses: actions/download-artifact@v2
-      - name: Create a pre Release
-        uses: softprops/action-gh-release@v1
+      - name: Prerelease tag_name
+        uses: actions/github-script@v4
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        id: prerelease_tag_name
         with:
-          tag_name: prerelease-${{ env.GITHUB_RUN_ID }}
-          draft: true
+          script: |
+            conts num = context.runNumber;
+            const sha = context.sha.substring(0, 7);
+            const branch = context.ref.split('/').pop();
+            cont tag_name = `prerelease-${branch}-${num}-${sha}`;
+            return tag_name;
+          result-encoding: string
+      - name: Prerelease
+        uses: softprops/action-gh-release@v1
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        with:
+          tag_name: ${{ steps.prerelease_tag_name.outputs.tag_name }}
           prerelease: true
           body: This is a prerelease.
+          files: |
+            meet-accountmanager/meet-accountmanager.tar.xz
+            prosody-native-utils-amd64/prosody-native-utils-amd64.tar.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
           files: |
             meet-accountmanager/meet-accountmanager.tar.xz
             prosody-native-utils-amd64/prosody-native-utils-amd64.tar.xz
