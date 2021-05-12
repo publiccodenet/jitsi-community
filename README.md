@@ -49,6 +49,9 @@ We followed these Digital Ocean community tutorials to set them up:
 * [How To Install MariaDB on Ubuntu 20.04 By Brian Boucheron and Mark
 Drake](https://www.digitalocean.com/community/tutorials/how-to-install-mariadb-on-ubuntu-20-04)
 
+### 0. Download the files
+Download the two archives from (jitsi-community Releases)[https://github.com/publiccodenet/jitsi-community/releases].
+
 ### 1. Create a MariaDB database and users for our services.
 Open the MariaDB client:
 ```sh
@@ -83,6 +86,7 @@ chown -R meet-accountmanager:meet-accountmanager /var/{lib,log}/meet-accountmana
 ```
 
 ### 4. Install the meet-accountmanager Django app
+
 Unpack the meet account manager archive into /opt/meet-accountmanager
 ```sh
 sudo tar -xJf meet-accountmanager.tar.xz -C /opt
