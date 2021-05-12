@@ -51,6 +51,10 @@ Drake](https://www.digitalocean.com/community/tutorials/how-to-install-mariadb-o
 
 ### 0. Download the files
 Download the two archives from (jitsi-community Releases)[https://github.com/publiccodenet/jitsi-community/releases].
+You can use the command below to download a file, replace the _<url copied from releases>_:
+```sh
+curl -LO <url copied from releases>
+```
 
 ### 1. Create a MariaDB database and users for our services.
 Open the MariaDB client:
