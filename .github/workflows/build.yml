@@ -12,13 +12,16 @@ jobs:
           cd prosody/util-src
           sh configure
           make
+      - name: Create archive
+        run: |
+          tar -cJf prosody-native-utils-amd64.tar.xz \
+              prosody/util-src/hashes.so \
+              prosody/auth_module/mod_auth_sql_hashed.lua
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
           name: prosody-native-utils-amd64
-          path: |
-            prosody/util-src/hashes.so
-            prosody/auth_module/mod_auth_sql_hashed.lua
+          path: prosody-native-utils-amd64.tar.xz
   build-django-app:
     runs-on: ubuntu-latest
     steps:
@@ -45,16 +48,18 @@ jobs:
         with:
           name: meet-accountmanager
           path: meet-accountmanager.tar.xz
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
       - name: Create a pre Release
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
           body: This is a prerelease.
-          tag_name: prerelease.${{ env.GITHUB_SHA }}
           files: |
             meet-accountmanager.tar.xz
+            prosody-native-utils-amd64.tar.xz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
-
-
