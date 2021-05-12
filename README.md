@@ -105,7 +105,7 @@ chmod 640 /etc/meet-accountmanager/database.cnf
 ```
 
 Configure Django's email server password by placing it in the file `/etc/meet-accountmanager/email_password`.
-```
+```sh
 touch /etc/meet-accountmanager/email_password
 chown root:meet-accountmanager /etc/meet-accountmanager/email_password
 chmod 640 /etc/meet-accountmanager/email_password
@@ -165,7 +165,7 @@ The file is located in `/etc/nginx/sites-available` and is probably
 named `_<your site address>_.conf`.
 
 Add the following before the first `server` block:
-```
+```nginx
 upstream accountmanager {
     # fail_timeout=0 means we always retry an upstream even if it failed
     # to return a good HTTP response
@@ -174,7 +174,7 @@ upstream accountmanager {
 ```
 
 Add the following block after the `location = /external_api.js` block:
-```
+```nginx
     location ~ ^/static2/(.*)$ {
         add_header 'Access-Control-Allow-Origin' '*';
         alias /opt/meet-accountmanager/static2/$1;
@@ -187,7 +187,7 @@ Add the following block after the `location = /external_api.js` block:
 ```
 
 Add the following block after the `location = /xmpp-websocket` block:
-```
+```nginx
     location ^~ /accountmanager/ {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
