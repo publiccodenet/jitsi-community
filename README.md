@@ -50,7 +50,7 @@ We followed these Digital Ocean community tutorials to set them up:
 Drake](https://www.digitalocean.com/community/tutorials/how-to-install-mariadb-on-ubuntu-20-04)
 
 ### 0. Download the files
-Download the two archives from (jitsi-community Releases)[https://github.com/publiccodenet/jitsi-community/releases].
+Download the two archives from [jitsi-community Releases](https://github.com/publiccodenet/jitsi-community/releases).
 You can use the command below to download a file, replace the _<url copied from releases>_:
 ```sh
 curl -LO <url copied from releases>
