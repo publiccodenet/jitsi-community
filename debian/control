@@ -1,0 +1,23 @@
+Source: meetaccountmanager
+Section: net
+Priority: extra
+Maintainer: james <james@unknown>
+Build-Depends: debhelper-compat (= 12)
+Standards-Version: 4.4.1
+Homepage: https://github.com/publiccodenet/jitsi-community
+Vcs-Browser: https://github.com/publiccodenet/jitsi-community
+Vcs-Git: https://github.com/publiccodenet/jitsi-community.git
+
+Package: meetaccountmanager
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, mariadb-client
+Description: A web UI providing user sign up and management for a Jitsi instance.
+ The web UI is a Django instance. It repurposes Django's admin Console to
+ provide a way to manage users. The regisitration-redux module provides a way for
+ users to sign up, regisitration-redux is configured to require admin approval of
+ new user accounts. To link Jitsi to the Django user database a Prosody module is
+ supplied. To get the version of Prosody that ships as part of Ubuntu 20.04 to
+ work with the SHA256 hashes that Django uses, the Prosody utils module,
+ hashes.so, has to be replaced with a newer version. The requirements.txt
+ includes a dependency for Gunicorn to serve Django. Also provided are systemd
+ unit files for a socket and service to keep it running.
