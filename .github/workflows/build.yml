@@ -36,7 +36,7 @@ jobs:
           venv/bin/pip install -r requirements.txt
           cp -R ../util util
       - name: Precompile python source files
-        run: meet-accountmanager/venv/bin/python3 -m compileall -o 2 -f meet-accountmanager
+        run: echo "import compileall; compileall.compile_dir('meet-accountmanager',  optimize=2)" | meet-accountmanager/venv/bin/python3
       - name: Copy the files to static2
         run: |
           cd meet-accountmanager
