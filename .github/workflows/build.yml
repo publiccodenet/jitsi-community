@@ -34,7 +34,7 @@ jobs:
           . venv/bin/activate
           venv/bin/pip install wheel
           venv/bin/pip install -r requirements.txt
-          cp -R util meet-accountmanager/util
+          cp -R ../util meet-accountmanager/util
       - name: Precompile python source files
         run: venv/bin/python3 -m compileall -f -o 2 
       - name: Copy the files to static2
