@@ -50,7 +50,12 @@ We followed these Digital Ocean community tutorials to set them up:
 Drake](https://www.digitalocean.com/community/tutorials/how-to-install-mariadb-on-ubuntu-20-04)
 
 ### 0. Download the files
-Download the two archives from [jitsi-community Releases](https://github.com/publiccodenet/jitsi-community/releases).
+Download the two archives:
+* `meet-accountmanager.tar.xz`
+* `prosody-native-utils-amd64.tar.xz`
+
+From [jitsi-community Releases](https://github.com/publiccodenet/jitsi-community/releases).
+
 You can use the command below to download a file, replace the `<url copied from releases>`:
 ```sh
 curl -LO <url copied from releases>
