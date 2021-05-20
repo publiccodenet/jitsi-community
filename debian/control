@@ -1,14 +1,14 @@
-Source: meetaccountmanager
+Source: meet-accountmanager
 Section: net
 Priority: extra
 Maintainer: james <james@unknown>
-Build-Depends: debhelper-compat (= 12)
+Build-Depends: debhelper-compat (= 12), dh-exec
 Standards-Version: 4.4.1
 Homepage: https://github.com/publiccodenet/jitsi-community
 Vcs-Browser: https://github.com/publiccodenet/jitsi-community
 Vcs-Git: https://github.com/publiccodenet/jitsi-community.git
 
-Package: meetaccountmanager
+Package: meet-accountmanager
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, mariadb-client
 Description: A web UI providing user sign up and management for a Jitsi instance.

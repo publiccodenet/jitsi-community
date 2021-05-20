@@ -1,0 +1,5 @@
+#!/usr/bin/dh-exec
+meet-accountmanager opt/meet-accountmanager
+configuration/database.cnf => etc/meet-accountmanager/database.cnf
+systemd/meet-accountmanager.socket => usr/local/lib/systemd/system/meet-accountmanager.socket
+systemd/meet-accountmanager.service => usr/local/lib/systemd/system/meet-accountmanager.service
