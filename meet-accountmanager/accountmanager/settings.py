@@ -36,7 +36,10 @@ CSRF_COOKIE_SECURE = True
 #if path.isfile(key_path):
 #    with open(key_path, 'r') as key_file:
 #        SECRET_KEY = bytes.fromhex(key_file.read())
-exec(open(r'/etc/meet-accountmanager/settings.py').read())
+settings_file = r'/etc/meet-accountmanager/settings.py'
+if path.isfile(settings_file):
+    exec(open(settings_file).read())
+
 if SECRET_KEY:
     SECRET_KEY = b64decode(SECRET_KEY)
 else:
