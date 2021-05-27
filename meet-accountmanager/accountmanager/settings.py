@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 from os import path, urandom
 from pathlib import Path
+from base64 import b64decode
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,32 +29,37 @@ SECURE_HSTS_PRELOAD = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = urandom(32)
-key_path = path.join('/etc/meet-accountmanager', 'key')
-if path.isfile(key_path):
-    with open(key_path, 'r') as key_file:
-        SECRET_KEY = bytes.fromhex(key_file.read())
 
+# SECURITY WARNING: keep the secret key used in production secret!
+#SECRET_KEY = urandom(32)
+#key_path = path.join('/etc/meet-accountmanager', 'key')
+#if path.isfile(key_path):
+#    with open(key_path, 'r') as key_file:
+#        SECRET_KEY = bytes.fromhex(key_file.read())
+exec(open(r'/etc/meet-accountmanager/settings.py').read())
+if SECRET_KEY:
+    SECRET_KEY = b64decode(SECRET_KEY)
+else:
+    SECRET_KEY = urandom(32)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'jitsi@publiccode.net'
-EMAIL_HOST_PASSWORD = '' #past the key or password app here
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = 'do-not-reply@publiccode.net'
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_HOST = 'smtp.gmail.com'
+#EMAIL_HOST_USER = 'jitsi@publiccode.net'
+#EMAIL_HOST_PASSWORD = '' #past the key or password app here
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+#DEFAULT_FROM_EMAIL = 'do-not-reply@publiccode.net'
 
-email_password_path = path.join('/etc/meet-accountmanager', 'email_password')
-if path.isfile(email_password_path):
-    with open(email_password_path, 'r') as email_password_file:
-        EMAIL_HOST_PASSWORD = email_password_file.read()
+#email_password_path = path.join('/etc/meet-accountmanager', 'email_password')
+#if path.isfile(email_password_path):
+#    with open(email_password_path, 'r') as email_password_file:
+#        EMAIL_HOST_PASSWORD = email_password_file.read()
 
 ALLOWED_HOSTS = ['*']
 
-REGISTRATION_ADMINS = [('Approval Needed', 'meet-community-approval@publiccode.net')]
+#REGISTRATION_ADMINS = [('Approval Needed', 'meet-community-approval@publiccode.net')]
 
 # Application definition
 # PASSWORD_HASHERS = [

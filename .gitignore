@@ -1,0 +1,6 @@
+/debian/.debhelper/
+/debian/debhelper-build-stamp
+/debian/meet-accountmanager/
+/debian/tmp/
+/debian/files
+

@@ -41,6 +41,8 @@ jobs:
         run: |
           cd meet-accountmanager
           venv/bin/python3 manage.py collectstatic 
+      - name: Create deb
+        run: dpkg-buildpackage -rfakeroot -us -uc -b
       - name: Create archive
         run: |
           cp -R systemd meet-accountmanager/systemd
@@ -51,6 +53,11 @@ jobs:
         with:
           name: meet-accountmanager
           path: meet-accountmanager.tar.xz
+      - name: Archive debian artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: meet-accountmanager deb installer
+          path: ../meet-accountmanager-*.deb
   create-release:
     runs-on: ubuntu-latest
     needs: [build-prosody-amd64, build-django-app] 
