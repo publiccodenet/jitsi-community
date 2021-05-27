@@ -40,7 +40,9 @@ jobs:
       - name: Copy the files to static2
         run: |
           cd meet-accountmanager
-          venv/bin/python3 manage.py collectstatic 
+          venv/bin/python3 manage.py collectstatic
+      - name: install deb dependencies
+        run: sudo apt install dh-exec 
       - name: Create deb
         run: dpkg-buildpackage -rfakeroot -us -uc -b
       - name: Create archive
