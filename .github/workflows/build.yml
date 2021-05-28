@@ -26,10 +26,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          path: jitsi-community
       - name: Setup python venv
         run: |
           sudo apt install libmysqlclient-dev
-          cd meet-accountmanager
+          cd jitsi-community/meet-accountmanager
           python3 -m venv venv
           . venv/bin/activate
           venv/bin/pip install wheel
@@ -39,7 +41,7 @@ jobs:
         run: echo "import compileall; compileall.compile_dir('meet-accountmanager',  optimize=2)" | meet-accountmanager/venv/bin/python3
       - name: Copy the files to static2
         run: |
-          cd meet-accountmanager
+          cd jitsi-community/meet-accountmanager
           venv/bin/python3 manage.py collectstatic
       - name: install deb dependencies
         run: sudo apt install dh-exec 
@@ -47,6 +49,7 @@ jobs:
         run: dpkg-buildpackage -rfakeroot -us -uc -b
       - name: Create archive
         run: |
+          cd jitsi-community
           cp -R systemd meet-accountmanager/systemd
           cp -R configuration meet-accountmanager/example-configuration
           tar -cJf meet-accountmanager.tar.xz meet-accountmanager
@@ -54,12 +57,12 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: meet-accountmanager
-          path: meet-accountmanager.tar.xz
+          path: jitsi-community/meet-accountmanager.tar.xz
       - name: Archive debian artifacts
         uses: actions/upload-artifact@v2
         with:
           name: meet-accountmanager deb installer
-          path: ../meet-accountmanager-*.deb
+          path: meet-accountmanager-*.deb
   create-release:
     runs-on: ubuntu-latest
     needs: [build-prosody-amd64, build-django-app] 
