@@ -48,7 +48,9 @@ jobs:
       - name: install deb dependencies
         run: sudo apt install dh-exec 
       - name: Create deb
-        run: dpkg-buildpackage -rfakeroot -us -uc -b
+        run: |
+          cd jitsi-community
+          dpkg-buildpackage -rfakeroot -us -uc -b
       - name: Create archive
         run: |
           cd jitsi-community
