@@ -79,7 +79,7 @@ jobs:
       - name: Archive debian artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: meet-accountmanager deb installer
+          name: meet-accountmanager_deb_installer
           path: meet-accountmanager_*.deb
   create-release:
     runs-on: ubuntu-latest
@@ -106,6 +106,7 @@ jobs:
           prerelease: true
           body: This is a prerelease.
           files: |
+            meet-accountmanager_deb_installer/meet-accountmanager_*.deb
             meet-accountmanager/meet-accountmanager.tar.xz
             prosody-native-utils-amd64/prosody-native-utils-amd64.tar.xz
         env:
