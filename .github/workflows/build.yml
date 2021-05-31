@@ -62,7 +62,7 @@ jobs:
       - name: Create deb
         run: |
           cd jitsi-community
-          echo "meet-accountmanager (${{ steps.prerelease_tag_name.outputs.tag_name }}) unstable; urgency=medium\n\n -- r <r@r>  $(date -R)" > debian/changelog
+          echo "meet-accountmanager (0.1.0-${{ steps.prerelease_tag_name.outputs.tag_name }}) unstable; urgency=medium\n\n  * pre-release CI build.\n\n -- r <r@r>  $(date -R)" > debian/changelog
           dpkg-buildpackage -rfakeroot -us -uc -b
       - name: Create archive
         run: |
