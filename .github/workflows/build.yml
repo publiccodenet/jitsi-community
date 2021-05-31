@@ -34,7 +34,7 @@ jobs:
             const num = context.runNumber;
             const sha = context.sha.substring(0, 7);
             const branch = context.ref.split('/').pop();
-            const tag_name = `prerelease-${branch}-${num}-${sha}`;
+            const tag_name = `prerelease-${branch}-${num}-${sha}`.replace('_', '-');
             console.log(tag_name);
             core.setOutput('tag_name', tag_name);
       - uses: actions/checkout@v2
@@ -62,7 +62,7 @@ jobs:
       - name: Create deb
         run: |
           cd jitsi-community
-          echo "meet-accountmanager (0.1.0-${{ steps.prerelease_tag_name.outputs.tag_name.replace('_', '-') }}) unstable; urgency=medium\n\n  * pre-release CI build.\n\n -- r <r@r>  $(date -R)" > debian/changelog
+          echo "meet-accountmanager (0.1.0-${{ steps.prerelease_tag_name.outputs.tag_name }}) unstable; urgency=medium\n\n  * pre-release CI build.\n\n -- r <r@r>  $(date -R)" > debian/changelog
           dpkg-buildpackage -rfakeroot -us -uc -b
       - name: Create archive
         run: |
