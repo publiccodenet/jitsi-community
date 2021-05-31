@@ -61,8 +61,8 @@ jobs:
         run: sudo apt install dh-exec 
       - name: Create deb
         run: |
-          echo "meet-accountmanager (${{ steps.prerelease_tag_name.outputs.tag_name }}) unstable; urgency=medium\n\n -- r <r@r>  $(date -R)" > debian/changelog
           cd jitsi-community
+          echo "meet-accountmanager (${{ steps.prerelease_tag_name.outputs.tag_name }}) unstable; urgency=medium\n\n -- r <r@r>  $(date -R)" > debian/changelog
           dpkg-buildpackage -rfakeroot -us -uc -b
       - name: Create archive
         run: |
