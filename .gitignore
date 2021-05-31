@@ -1,6 +1,8 @@
 /debian/.debhelper/
 /debian/debhelper-build-stamp
+/debian/files
+/debian/meet-accountmanager.postrm.debhelper
+/debian/meet-accountmanager.substvars
 /debian/meet-accountmanager/
 /debian/tmp/
-/debian/files
 
