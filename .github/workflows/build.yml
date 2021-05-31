@@ -61,6 +61,7 @@ jobs:
         run: sudo apt install dh-exec 
       - name: Create deb
         run: |
+          echo "meet-accountmanager (${{ steps.prerelease_tag_name.outputs.tag_name }}) unstable; urgency=medium\n\n -- r <r@r>  $(date -R)" > debian/changelog
           cd jitsi-community
           dpkg-buildpackage -rfakeroot -us -uc -b
       - name: Create archive
@@ -79,7 +80,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: meet-accountmanager deb installer
-          path: meet-accountmanager-*.deb
+          path: meet-accountmanager_*.deb
   create-release:
     runs-on: ubuntu-latest
     needs: [build-prosody-amd64, build-django-app] 
