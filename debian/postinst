@@ -37,8 +37,8 @@ case "$1" in
             && chown -R $USER:$USER "$LOG_DIR"
         fi
         if [ -d "$CONFIG_DIR" -a -f "$CONFIG_FILE" ]; then
-            /usr/bin/python3 /opt/meet-accountmanager/util/create_key.py /etc/meet-accountmanager/settings.py SECRET_KEY
-            chown root:$USER "$KEY_FILE"
+            /usr/bin/python3 /opt/meet-accountmanager/util/create_key.py $CONFIG_FILE SECRET_KEY
+            chown root:$USER "$CONFIG_FILE"
         fi
     ;;
 
