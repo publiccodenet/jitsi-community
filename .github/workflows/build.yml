@@ -57,6 +57,12 @@ jobs:
         run: |
           cd jitsi-community/meet-accountmanager
           venv/bin/python3 manage.py collectstatic
+      - name: move venv
+        run: |
+          cd jitsi-community/meet-accountmanager
+          SRC=`pwd`
+          DEST=/opt/meet-accountmanager
+          find venv/bin -type f -exec sed -i "s,${SRC},${DEST},g" '{}' \;
       - name: install deb dependencies
         run: sudo apt install dh-exec 
       - name: Create deb
