@@ -40,7 +40,7 @@ All code not falling under the above is dual licensed under
 |configuration      |example configuration files|
 |util               |utility scripts|
 
-## Installation
+## Installation using the deb
 
 These instructions are for installation on Ubuntu 20.04.  They
 assume that you already have a working Jitsi installation and mariadb is installed and ready to go.
@@ -75,6 +75,196 @@ GRANT CREATE, ALTER, INDEX, SELECT, UPDATE, INSERT, DELETE, REFERENCES ON accoun
 
 CREATE USER 'prosody'@'localhost' IDENTIFIED BY '<replace with password>';
 GRANT SELECT ON accountmanager.* TO 'accountmanager'@'localhost';
+```
+
+### 4. Install the meet-accountmanager Django app
+
+Install the deb using apt. The  meet-accountmanager service will be installed into /opt/meet-accountmanager
+```sh
+sudo apt install ./meet-accountmanager-<version_you_downloaded>.deb
+```
+
+Configure Django's database connection by editing `/etc/meet-accountmanager/database.cnf`:
+```sh
+sudo nano /etc/meet-accountmanager/database.cnf
+```
+
+Edit `accountmanager/settings.py`. 
+```
+sudo nano /etc/meet-accountmanager/settings.py
+```
+
+Update the following lines to add the details for the email account that will
+be meet-accountmanager to verify emails and send notifications during the user
+registration process.
+```python
+EMAIL_HOST = ""
+EMAIL_HOST_USER = ""
+KEY = ""
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = ""
+```
+
+Update the line with the emails:
+```python
+REGISTRATION_ADMINS = [('<change to name>', '<change to email address>')]
+```
+
+Activate the Python virtual environment and use Django's manage.py to
+initialize the database:
+```sh
+cd /opt/meet-accountmanager
+source venv/bin/activate
+python manage.py makemigrations
+python manage.py migrate
+```
+
+Add a Django admin user:
+```sh
+python manage.py createsuperuser
+```
+### Setup the systemd unit files for meet-accountmanager
+
+Restart the socket and service:
+```sh
+sudo systemctl enable --now meet-accountmanager.socket
+```
+
+Test the Django socket
+```sh
+sudo -u www-data curl --unix-socket /run/meet-accountmanager.sock http
+```
+The Gunicorn service should be automatically
+started and you should see some HTML from your server in the terminal.
+
+### Update the Nginx configuration
+
+Add the following to your Nginx configuration for the Jitsi Meet site.
+The file is located in `/etc/nginx/sites-available` and is probably
+named `_<your site address>_.conf`.
+
+Add the following before the first `server` block:
+```nginx
+upstream accountmanager {
+    # fail_timeout=0 means we always retry an upstream even if it failed
+    # to return a good HTTP response
+    server unix:/run/meet-accountmanager.sock fail_timeout=0;
+}
+```
+
+Add the following block after the `location = /external_api.js` block:
+```nginx
+    location ~ ^/static2/(.*)$ {
+        add_header 'Access-Control-Allow-Origin' '*';
+        alias /opt/meet-accountmanager/static2/$1;
+	# try_files $uri =404;
+        # cache all versioned files
+        if ($arg_v) {
+          expires 1y;
+        }
+    }
+```
+
+Add the following block after the `location = /xmpp-websocket` block:
+```nginx
+    location ^~ /accountmanager/ {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host $http_host;
+        # we don't want nginx trying to do something clever with
+        # redirects, we set the Host: header above already.
+        proxy_set_header SCRIPT_NAME /accountmanager;
+        proxy_redirect off;
+        proxy_pass http://accountmanager;
+    }
+```
+
+Test the nginx configuration:
+```sh
+sudo nginx -c /etc/nginx/nginx.conf -t
+```
+
+Reload the nginx configuration.
+```sh
+sudo systemctl reload nginx
+```
+
+### Install the prosody modules
+Install the lua dbi mysql package:
+```sh
+sudo apt install lua-dbi-mysql
+```
+
+Unzip the Prosody zip file.
+```sh
+tar -xJf prosody-native-utils-amd64.tar.xz
+```
+
+Replace hashes.so with a version of hashes.so taken from a more recent version of Prosody
+because we need SHA-256 support.
+```sh
+sudo mv /usr/lib/prosody/util/hashes.so /usr/lib/prosody/util/hashes.so.bak
+sudo cp prosody/util-src/hashes.so /usr/lib/prosody/util/
+sudo cp prosody/auth_module/mod_auth_sql_hashed.lua /usr/lib/prosody/modules/
+```
+
+### Edit the Prosody configuration for the Jitsi instance.
+Configure the Prosody instance to use the auth_sql_hashed module and add an auth_sql block containing the credentials for the Prosody MariaDB user you created earlier.
+In the configuration block for the Prosody host used by your Jitsi instance.
+```lua
+        authentication = "sql_hashed"
+        auth_sql = { driver = "MySQL", database = "accountmanager", username = "prosody", password = "<prosody sql user password>", host = "localhost" }
+```
+Restart the Prosody instance.
+```sh
+sudo systemctl restart prosody
+```
+
+### Test the installation
+Test that a user that is added in Django can log into Jitsi.
+
+## References
+The following sources were consulted to create the installation guide:
+[Django documentation](https://docs.djangoproject.com/en/3.2/)
+[Gunicorn documentation on deployment](https://docs.gunicorn.org/en/latest/deploy.html)
+[django-registration-redux 2.9 documentation](https://django-registration-redux.readthedocs.io/en/latest/)
+
+## Manual Installation
+
+These instructions are for installation on Ubuntu 20.04.  They
+assume that you already have a working Jitsi installation and mariadb is installed and ready to go.
+We followed these Digital Ocean community tutorials to set them up:
+* [How To Install Jitsi Meet on Ubuntu 20.04 By Elliot Cooper](https://www.digitalocean.com/community/tutorials/how-to-install-jitsi-meet-on-ubuntu-20-04)
+* [How To Install MariaDB on Ubuntu 20.04 By Brian Boucheron and Mark
+Drake](https://www.digitalocean.com/community/tutorials/how-to-install-mariadb-on-ubuntu-20-04)
+
+### 0. Download the files
+Download the two archives:
+* `meet-accountmanager.tar.xz`
+* `prosody-native-utils-amd64.tar.xz`
+
+From [jitsi-community Releases](https://github.com/publiccodenet/jitsi-community/releases).
+
+You can use the command below to download a file, replace the `<url copied from releases>`:
+```sh
+curl -LO <url copied from releases>
+```
+
+### 1. Create a MariaDB database and users for our services.
+Open the MariaDB client:
+```sh
+mariadb
+```
+In the following section change _<replace with password>_ for the accountmanager and the Prosody database users. Run it to create the database:
+```mysql
+CREATE DATABASE accountmanager CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;
+
+CREATE USER 'accountmanager'@'localhost' IDENTIFIED BY '<replace with password>';
+GRANT CREATE, ALTER, INDEX, SELECT, UPDATE, INSERT, DELETE, REFERENCES ON accountmanager.* TO 'accountmanager'@'localhost';
+
+CREATE USER 'prosody'@'localhost' IDENTIFIED BY '<replace with password>';
+GRANT SELECT ON accountmanager.* TO 'prosody'@'localhost';
 ```
 
 
