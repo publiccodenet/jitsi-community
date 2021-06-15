@@ -74,28 +74,33 @@ CREATE USER 'accountmanager'@'localhost' IDENTIFIED BY '<replace with password>'
 GRANT CREATE, ALTER, INDEX, SELECT, UPDATE, INSERT, DELETE, REFERENCES ON accountmanager.* TO 'accountmanager'@'localhost';
 
 CREATE USER 'prosody'@'localhost' IDENTIFIED BY '<replace with password>';
-GRANT SELECT ON accountmanager.* TO 'accountmanager'@'localhost';
+GRANT SELECT ON accountmanager.* TO 'prosody'@'localhost';
 ```
 
-### 4. Install the meet-accountmanager Django app
+### 2. Install the meet-accountmanager Django app
+
+#### 2.1
 
 Install the deb using apt. The  meet-accountmanager service will be installed into /opt/meet-accountmanager
 ```sh
-sudo apt install ./meet-accountmanager-<version_you_downloaded>.deb
+sudo apt install ./meet-accountmanager_<version_you_downloaded>.deb
 ```
+
+#### 2.2
 
 Configure Django's database connection by editing `/etc/meet-accountmanager/database.cnf`:
 ```sh
 sudo nano /etc/meet-accountmanager/database.cnf
 ```
 
+#### 2.3
 Edit `accountmanager/settings.py`. 
 ```
 sudo nano /etc/meet-accountmanager/settings.py
 ```
 
 Update the following lines to add the details for the email account that will
-be meet-accountmanager to verify emails and send notifications during the user
+be used by the meet-accountmanager to verify emails and send notifications during the user
 registration process.
 ```python
 EMAIL_HOST = ""
@@ -111,26 +116,32 @@ Update the line with the emails:
 REGISTRATION_ADMINS = [('<change to name>', '<change to email address>')]
 ```
 
-Activate the Python virtual environment and use Django's manage.py to
-initialize the database:
+#### 2.4
+
+Use Django's manage.py to initialize the database:
 ```sh
 cd /opt/meet-accountmanager
-source venv/bin/activate
-python manage.py makemigrations
-python manage.py migrate
+./manage.py makemigrations
+./manage.py migrate
 ```
+
+#### 2.5
 
 Add a Django admin user:
 ```sh
 python manage.py createsuperuser
 ```
-### Setup the systemd unit files for meet-accountmanager
+
+### 3.  Setup the systemd unit files for meet-accountmanager
+
+#### 3.1
 
 Restart the socket and service:
 ```sh
 sudo systemctl enable --now meet-accountmanager.socket
 ```
 
+#### 3.2
 Test the Django socket
 ```sh
 sudo -u www-data curl --unix-socket /run/meet-accountmanager.sock http
@@ -138,7 +149,9 @@ sudo -u www-data curl --unix-socket /run/meet-accountmanager.sock http
 The Gunicorn service should be automatically
 started and you should see some HTML from your server in the terminal.
 
-### Update the Nginx configuration
+### 4. Update the Nginx configuration
+
+#### 4.1
 
 Add the following to your Nginx configuration for the Jitsi Meet site.
 The file is located in `/etc/nginx/sites-available` and is probably
@@ -180,27 +193,35 @@ Add the following block after the `location = /xmpp-websocket` block:
     }
 ```
 
+#### 4.2
+
 Test the nginx configuration:
 ```sh
 sudo nginx -c /etc/nginx/nginx.conf -t
 ```
+
+#### 4.3
 
 Reload the nginx configuration.
 ```sh
 sudo systemctl reload nginx
 ```
 
-### Install the prosody modules
+### 5. Install the prosody modules
+
+#### 5.1
 Install the lua dbi mysql package:
 ```sh
 sudo apt install lua-dbi-mysql
 ```
 
+#### 5.2
 Unzip the Prosody zip file.
 ```sh
 tar -xJf prosody-native-utils-amd64.tar.xz
 ```
 
+#### 5.3
 Replace hashes.so with a version of hashes.so taken from a more recent version of Prosody
 because we need SHA-256 support.
 ```sh
@@ -209,19 +230,24 @@ sudo cp prosody/util-src/hashes.so /usr/lib/prosody/util/
 sudo cp prosody/auth_module/mod_auth_sql_hashed.lua /usr/lib/prosody/modules/
 ```
 
-### Edit the Prosody configuration for the Jitsi instance.
+### 6. Edit the Prosody configuration for the Jitsi instance.
+
+#### 6.1
 Configure the Prosody instance to use the auth_sql_hashed module and add an auth_sql block containing the credentials for the Prosody MariaDB user you created earlier.
 In the configuration block for the Prosody host used by your Jitsi instance.
 ```lua
         authentication = "sql_hashed"
         auth_sql = { driver = "MySQL", database = "accountmanager", username = "prosody", password = "<prosody sql user password>", host = "localhost" }
 ```
+
+#### 6.2
+
 Restart the Prosody instance.
 ```sh
 sudo systemctl restart prosody
 ```
 
-### Test the installation
+### 7. Test the installation
 Test that a user that is added in Django can log into Jitsi.
 
 ## References
