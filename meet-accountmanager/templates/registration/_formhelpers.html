@@ -1,0 +1,12 @@
+<div class="form-group">
+  <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+  {{ field|safe }}
+  <small class="form-text text-muted">{{ field.help_text }}</small>
+  {% if field.errors %}
+    <ul class=errors>
+    {% for error in field.errors %}
+      <li>{{ error|escape }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+</div>

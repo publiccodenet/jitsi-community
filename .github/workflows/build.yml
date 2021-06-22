@@ -1,0 +1,130 @@
+name: build-package
+on: [push]
+jobs:
+  build-prosody-amd64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install development files for Lua 5.2 
+        run: sudo apt install --no-install-recommends lua5.2 liblua5.2-dev
+      - name: Build prosody native utils (hashes.c)
+        run: |
+          cd prosody/util-src
+          sh configure
+          make
+      - name: Create archive
+        run: |
+          tar -cJf prosody-native-utils-amd64.tar.xz \
+              prosody/util-src/hashes.so \
+              prosody/auth_module/mod_auth_sql_hashed.lua
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: prosody-native-utils-amd64
+          path: prosody-native-utils-amd64.tar.xz
+  build-django-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prerelease tag_name
+        uses: actions/github-script@v4
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        id: prerelease_tag_name
+        with:
+          script: |
+            const num = context.runNumber;
+            const sha = context.sha.substring(0, 7);
+            const branch = context.ref.split('/').pop();
+            const tag_name = `prerelease-${branch}-${num}-${sha}`.replace('_', '-');
+            console.log(tag_name);
+            core.setOutput('tag_name', tag_name);
+      - uses: actions/checkout@v2
+        with:
+          path: jitsi-community
+      - name: Setup python venv
+        run: |
+          sudo apt install libmysqlclient-dev
+          cd jitsi-community/meet-accountmanager
+          python3 -m venv venv
+          . venv/bin/activate
+          venv/bin/pip install wheel
+          venv/bin/pip install -r requirements.txt
+          cp -R ../util util
+      - name: Precompile python source files
+        run: |
+          cd jitsi-community
+          echo "import compileall; compileall.compile_dir('meet-accountmanager',  optimize=2)" | meet-accountmanager/venv/bin/python3
+      - name: Copy the files to static2
+        run: |
+          cd jitsi-community/meet-accountmanager
+          venv/bin/python3 manage.py collectstatic
+      - name: move venv
+        run: |
+          cd jitsi-community/meet-accountmanager
+          SRC=`pwd`
+          DEST=/opt/meet-accountmanager
+          find venv/bin -type f -exec sed -i "s,${SRC},${DEST},g" '{}' \;
+      - name: install deb dependencies
+        run: sudo apt install dh-exec 
+      - name: Create deb
+        run: |
+          cd jitsi-community
+          echo "meet-accountmanager (0.1.0-${{ steps.prerelease_tag_name.outputs.tag_name }}) unstable; urgency=medium\n\n  * pre-release CI build.\n\n -- r <r@r>  $(date -R)" > debian/changelog
+          dpkg-buildpackage -rfakeroot -us -uc -b
+      - name: Create archive
+        run: |
+          cd jitsi-community
+          cp -R systemd meet-accountmanager/systemd
+          cp -R configuration meet-accountmanager/example-configuration
+          tar -cJf meet-accountmanager.tar.xz meet-accountmanager
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: meet-accountmanager
+          path: jitsi-community/meet-accountmanager.tar.xz
+      - run: ls -la
+      - name: Archive debian artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: meet-accountmanager_deb_installer
+          path: meet-accountmanager_*.deb
+  create-release:
+    runs-on: ubuntu-latest
+    needs: [build-prosody-amd64, build-django-app] 
+    steps:
+      - uses: actions/download-artifact@v2
+      - name: Prerelease tag_name
+        uses: actions/github-script@v4
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        id: prerelease_tag_name
+        with:
+          script: |
+            const num = context.runNumber;
+            const sha = context.sha.substring(0, 7);
+            const branch = context.ref.split('/').pop();
+            const tag_name = `prerelease-${branch}-${num}-${sha}`;
+            console.log(tag_name);
+            core.setOutput('tag_name', tag_name);
+      - name: Prerelease
+        uses: softprops/action-gh-release@v1
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        with:
+          tag_name: ${{ steps.prerelease_tag_name.outputs.tag_name }}
+          prerelease: true
+          body: This is a prerelease.
+          files: |
+            meet-accountmanager_deb_installer/meet-accountmanager_*.deb
+            meet-accountmanager/meet-accountmanager.tar.xz
+            prosody-native-utils-amd64/prosody-native-utils-amd64.tar.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            meet-accountmanager/meet-accountmanager.tar.xz
+            prosody-native-utils-amd64/prosody-native-utils-amd64.tar.xz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ env.GITHUB_REPOSITORY }}

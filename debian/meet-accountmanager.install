@@ -1,0 +1,4 @@
+#!/usr/bin/dh-exec
+meet-accountmanager opt/
+configuration/settings.py => etc/meet-accountmanager/settings.py
+configuration/database.cnf => etc/meet-accountmanager/database.cnf

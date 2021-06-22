@@ -1,0 +1,3 @@
+config.unix
+*.o
+*.so

@@ -1,0 +1,7 @@
+{% extends "registration/base.html" %}
+
+{% block title %}You've been logged out.{% endblock %}
+
+{% block content %}
+<p>Thanks for stopping by; when you come back, don't forget to <a href="{% url 'login' %}">log in</a> again.</p>
+{% endblock %}
